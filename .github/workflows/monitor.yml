@@ -29,7 +29,7 @@ jobs:
         TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
       run: |
-        python run_once.py
+        python test_run.py
 
     - name: Commit and push tracking file
       run: |
