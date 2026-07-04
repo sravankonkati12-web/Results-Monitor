@@ -207,6 +207,8 @@ def analyze_pdfs_with_gemini(pdf_paths):
         # Strict financial analysis prompt returning JSON — structural-growth hunter
         prompt = (
             "You are a senior buy-side equity research analyst at an institutional fund house. Your ONLY mandate is to identify Indian micro/small/mid-cap companies whose growth is STRUCTURAL and will compound over multiple quarters and years — not companies riding a one-off spike (base effects, one-time orders, commodity price windfalls, forex gains, tax reversals, seasonal aberrations, or accounting one-offs).\n\n"
+            f"CRITICAL INSTRUCTION: You are analyzing the financial results for the company: '{company}'. \n"
+            f"If the attached PDF documents belong to a completely different company, please flag this data mismatch in your analysis, but format your response for '{company}'.\n\n"
             "You are naturally skeptical. A single strong quarter proves nothing. Your job is to separate genuine multi-year compounders from flash-in-the-pan optical beats.\n\n"
             "Analyze the attached corporate filing, earnings release, and/or investor presentation as a UNIFIED set of documents.\n\n"
             "===========================================\n"
