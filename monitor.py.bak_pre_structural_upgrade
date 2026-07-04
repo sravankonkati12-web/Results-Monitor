@@ -1,0 +1,117 @@
+# =============================================================================
+# BACKUP: Original Gemini prompt from monitor.py
+# Saved:  2026-07-04
+# Reason: Pre-change snapshot before the "structural growth hunter" rewrite
+#         (0-10 score, 4-axis catalyst breakdown, one-off filter, AVOID banner).
+#
+# HOW TO REVERT:
+#   Open monitor.py, find the function analyze_pdfs_with_gemini(), replace
+#   the block that starts with `# Strict financial analysis prompt returning
+#   JSON - structural-growth hunter` and its full prompt = (...) assignment
+#   with the ORIGINAL_PROMPT string below (rebuild as the same
+#   parenthesised multi-line literal), and revert the JSON parsing block in
+#   process_announcements_group() to only read `telegram_message` and
+#   `pdf_html_report` (see ORIGINAL_PARSING_BLOCK at the bottom).
+#
+# This file is a reference-only backup. It is NOT imported or executed.
+# =============================================================================
+
+ORIGINAL_PROMPT = (
+    "You are a senior buy-side equity research analyst at an institutional fund house specializing in discovering high-growth micro, small, and mid-cap multibaggers in the Indian market.\n\n"
+    "Analyze the attached corporate filing, earnings release, or investor presentation.\n\n"
+    "Your task is to output a raw JSON object containing exactly two keys:\n"
+    "1. \"telegram_message\": A concise, mobile-friendly summary formatted with basic HTML (<b>, <i>).\n"
+    "2. \"pdf_html_report\": A comprehensive, dense, single-page growth triggers document formatted in clean HTML (ready for PDF conversion).\n\n"
+    "Do NOT wrap the JSON in markdown blocks (like ```json). Return ONLY the raw JSON object. Do not hallucinate data. Write 'N/A' if a metric is missing.\n\n"
+    "Here are the strict structures for both outputs:\n\n"
+    "### 1. Structure for \"telegram_message\" (Punchy, Data-Heavy, Mobile-Friendly)\n"
+    "⚡ <b>[Company Name] | [Period] Results Flash</b>\n"
+    "<b>Sector:</b> [Sector] | <b>Ticker:</b> [Ticker]\n\n"
+    "<b>\U0001f3e2 Business & Moat:</b>\n"
+    "• [1 sentence on what they do]\n"
+    "• <b>Moat Check:</b> [Differentiated niche OR Commoditized price-taker?]\n\n"
+    "<b>\U0001f4ca Financial Snapshot (QoQ & YoY):</b>\n"
+    "• \U0001f4b0 <b>Rev:</b> ₹[X] cr (YoY: [+/-X]% [\U0001f7e2/\U0001f534] | QoQ: [+/-X]% [\U0001f7e2/\U0001f534])\n"
+    "• \U0001f4c8 <b>PAT:</b> ₹[X] cr | PAT Margin: [X]%\n"
+    "• \U0001f680 <b>EBITDA:</b> ₹[X] cr | Margin: [X]% (YoY: [+/-X] bps)\n"
+    "• \U0001f4e6 <b>Order Book:</b> ₹[X] cr (Book-to-Bill: [X]x)\n\n"
+    "<b>\U0001f50d Quality & Execution:</b>\n"
+    "• <b>Cash Conv:</b> OCF/PAT ratio [X]x [\U0001f7e2/\U0001f534]. [Flag working capital traps].\n"
+    "• <b>Margin Driver:</b> [1 structural or cyclical reason for margin shift].\n\n"
+    "<b>\U0001f3af Growth Triggers & Timelines:</b>\n"
+    "• [Trigger 1]: [Impact] (Hits P&L by [Timeline])\n"
+    "• [Trigger 2]: [Impact] (Hits P&L by [Timeline])\n"
+    "• <b>Capex/Guidance:</b> [Details on capacity addition and management targets]\n\n"
+    "<b>\U0001f9e8 Valuation & Risks:</b>\n"
+    "• <b>What's in the price?:</b> [Is the current growth already priced in by consensus?]\n"
+    "• <b>Key Risk:</b> [1 specific execution or balance sheet risk]\n"
+    "• <b>Verdict:</b> [1 line: Beat/Miss/Inline & thesis intact/broken?]\n\n\n"
+    "### 2. Structure for \"pdf_html_report\" (Mohit's Deep Growth Triggers Framework)\n"
+    "Generate a highly professional, beautifully styled HTML string (using inline CSS) following this exact structure. Utilize clean inline CSS styles for fonts, spacing, padding, backgrounds, and highlighting. Avoid external fonts or CSS files.\n\n"
+    "<div style=\"font-family: Helvetica, Arial, sans-serif; color: #2d3748; line-height: 1.6; padding: 25px; max-width: 800px; margin: 0 auto; border: 1px solid #e2e8f0; border-radius: 8px; background-color: #ffffff;\">\n\n"
+    "  <h1 style=\"color: #1a365d; border-bottom: 3px solid #3182ce; padding-bottom: 10px; margin-top: 0; font-size: 26px; text-transform: uppercase;\">[Company Name] (Ticker: [Ticker]) - Growth Triggers & Earnings Analysis</h1>\n\n"
+    "  <h2 style=\"color: #2b6cb0; background-color: #ebf8ff; padding: 8px 12px; border-left: 5px solid #3182ce; font-size: 18px; margin-top: 25px; margin-bottom: 12px;\">1. Company Snapshot</h2>\n"
+    "  <div style=\"background-color: #f7fafc; padding: 12px; border: 1px solid #e2e8f0; border-radius: 6px; margin-bottom: 15px;\">\n"
+    "    <p style=\"margin: 4px 0;\"><b>\U0001f3e2 Business:</b> <u>[What the company does in one sentence without jargon]</u></p>\n"
+    "    <p style=\"margin: 4px 0;\"><b>\U0001f4ca Key Metrics:</b> <span style=\"background-color: #feebc8; padding: 2px 6px; border-radius: 4px; font-weight: bold;\">Market Cap: ₹[X] cr | CMP: ₹[X] | TTM Revenue: ₹[X] cr</span></p>\n"
+    "    <p style=\"margin: 4px 0;\"><b>\U0001f4c8 Capital Allocation:</b> TTM Margin: [X]% | ROE: [X]% | ROCE: [X]% | Promoter Holding: [X]%</p>\n"
+    "    <p style=\"margin: 4px 0;\"><b>⛓️ Value Chain & Customers:</b> [Where it sits in the value chain and who the end customers are]</p>\n"
+    "    <p style=\"margin: 4px 0;\"><b>\U0001f6e1️ Moat Analysis:</b> [What is unique? Is it a true moat or commoditized?]</p>\n"
+    "  </div>\n\n"
+    "  <h2 style=\"color: #2b6cb0; background-color: #ebf8ff; padding: 8px 12px; border-left: 5px solid #3182ce; font-size: 18px; margin-top: 25px; margin-bottom: 12px;\">2. Core Growth Triggers (Heart of the Document)</h2>\n"
+    "  <ul style=\"list-style-type: none; padding-left: 0;\">\n"
+    "    <li style=\"border-bottom: 1px solid #e2e8f0; padding-bottom: 15px; margin-bottom: 15px;\">\n"
+    "      <span style=\"font-size: 16px; font-weight: bold; color: #2c5282;\">\U0001f680 [Trigger 1 Name]</span> \n"
+    "      <span style=\"background-color: #c6f6d5; color: #22543d; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;\">\U0001f7e2 High Conviction</span> <br>\n"
+    "      <p style=\"margin: 6px 0;\"><i>What's happening:</i> [2-3 sentences explaining specific capex, policy, order book, or structural shift].</p>\n"
+    "      <p style=\"margin: 4px 0;\"><b>\U0001f4b0 Quantified Impact:</b> <u>[Incremental revenue potential or margin expansion]</u></p>\n"
+    "      <p style=\"margin: 4px 0;\"><b>\U0001f4c5 Timeline:</b> <span style=\"color: #3182ce; font-weight: bold;\">[When does this flow into the P&L?]</span></p>\n"
+    "    </li>\n"
+    "    <li style=\"padding-bottom: 5px;\">\n"
+    "      <span style=\"font-size: 16px; font-weight: bold; color: #2c5282;\">⚡ [Trigger 2 Name]</span> \n"
+    "      <span style=\"background-color: #feebc8; color: #744210; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold;\">\U0001f7e1 Optionality</span> <br>\n"
+    "      <p style=\"margin: 6px 0;\"><i>What's happening:</i> [2-3 sentences explaining specific capex, policy, order book, or structural shift].</p>\n"
+    "      <p style=\"margin: 4px 0;\"><b>\U0001f4b0 Quantified Impact:</b> <u>[Incremental revenue potential or margin expansion]</u></p>\n"
+    "      <p style=\"margin: 4px 0;\"><b>\U0001f4c5 Timeline:</b> <span style=\"color: #3182ce; font-weight: bold;\">[When does this flow into the P&L?]</span></p>\n"
+    "    </li>\n"
+    "  </ul>\n\n"
+    "  <h2 style=\"color: #2b6cb0; background-color: #ebf8ff; padding: 8px 12px; border-left: 5px solid #3182ce; font-size: 18px; margin-top: 25px; margin-bottom: 12px;\">3. Financial Quality & Balance Sheet</h2>\n"
+    "  <ul style=\"padding-left: 20px; margin-top: 8px;\">\n"
+    "    <li style=\"margin-bottom: 8px;\"><b>\U0001f4b5 Cash Conversion:</b> [OCF vs PAT analysis, working capital cycle changes].</li>\n"
+    "    <li style=\"margin-bottom: 8px;\"><b>⚖️ Leverage:</b> [Net Debt/Equity, interest coverage, capital allocation efficiency].</li>\n"
+    "    <li style=\"margin-bottom: 8px;\"><b>\U0001f514 One-Time Items:</b> [Flag any exceptional items or standalone vs consolidated deltas].</li>\n"
+    "  </ul>\n\n"
+    "  <h2 style=\"color: #2b6cb0; background-color: #ebf8ff; padding: 8px 12px; border-left: 5px solid #3182ce; font-size: 18px; margin-top: 25px; margin-bottom: 12px;\">4. Market Expectations (What's already in the price?)</h2>\n"
+    "  <ul style=\"padding-left: 20px; margin-top: 8px;\">\n"
+    "    <li style=\"margin-bottom: 8px;\"><b>\U0001f4c8 Consensus Discounting:</b> [What is the market already expecting?]</li>\n"
+    "    <li style=\"margin-bottom: 8px;\"><b>⚠️ Key Risks:</b> <span style=\"color: #e53e3e; font-weight: bold;\">[Granite-level risks to the trend and potential impact]</span></li>\n"
+    "  </ul>\n\n"
+    "</div>"
+)
+
+# -----------------------------------------------------------------------------
+# ORIGINAL JSON PARSING BLOCK (from process_announcements_group)
+# -----------------------------------------------------------------------------
+ORIGINAL_PARSING_BLOCK = """
+        try:
+            parsed_data = json.loads(cleaned_json_text)
+            telegram_message = parsed_data.get("telegram_message", "")
+            pdf_html_report = parsed_data.get("pdf_html_report", "")
+        except Exception as e:
+            logger.error(f"Failed to parse Gemini output as JSON: {e}")
+            logger.error(f"Raw response was: {raw_json_result}")
+            return False
+
+        if not telegram_message:
+            logger.error("No telegram_message found in parsed JSON.")
+            return False
+
+        # 3. Post Telegram text summary (handles chunking automatically!)
+        success = post_to_telegram(telegram_message, documents_info)
+"""
+
+if __name__ == "__main__":
+    # Sanity check that the strings parse
+    print(f"ORIGINAL_PROMPT length: {len(ORIGINAL_PROMPT)} chars")
+    print(f"ORIGINAL_PARSING_BLOCK length: {len(ORIGINAL_PARSING_BLOCK)} chars")
+    print("Backup file loaded successfully.")

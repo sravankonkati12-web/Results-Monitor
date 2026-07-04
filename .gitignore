@@ -1,0 +1,9 @@
+# Local environment variables containing sensitive keys
+.env
+
+# Python caching
+__pycache__/
+*.pyc
+
+# Logs and temporary execution outputs
+*.log
